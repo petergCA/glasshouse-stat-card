@@ -1,0 +1,5 @@
+test/mdi-paths.js
+test/*.png
+node_modules/
+.DS_Store
+.claude/settings.local.json
