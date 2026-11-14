@@ -4,7 +4,7 @@
  * Part of the Glasshouse card suite. MIT licence.
  */
 (() => {
-  const VERSION = '1.0.0';
+  const VERSION = '1.1.0';
   const TAG = 'glasshouse-stat-card';
 
   const TOKENS = [
@@ -415,6 +415,10 @@ button.tile { cursor: pointer; }
         const c = Number(config.columns);
         if (!Number.isInteger(c) || c < 1 || c > 8) throw new Error('glasshouse-stat-card: "columns" must be an integer 1-8');
       }
+      if (config.min_tile_width != null) {
+        const m = Number(config.min_tile_width);
+        if (!Number.isFinite(m) || m < 60 || m > 400) throw new Error('glasshouse-stat-card: "min_tile_width" must be a number of pixels, 60-400');
+      }
       const defaults = {};
       ['graph', 'trend', 'extrema', 'accent', 'decimals', 'tap_action', 'hold_action'].forEach((k) => {
         if (config[k] !== undefined && config.stats) defaults[k] = config[k];
@@ -482,7 +486,8 @@ button.tile { cursor: pointer; }
       });
       const prevKey = this._config ? `${this._config.hours}|${this._config.stats.map((s) => s.entity).join(',')}` : '';
       this._config = {
-        title: config.title, hours, columns: config.columns == null ? null : +config.columns, stats: norm,
+        title: config.title, hours, columns: config.columns == null ? null : +config.columns,
+        minTile: config.min_tile_width == null ? 120 : +config.min_tile_width, stats: norm,
       };
       const key = `${hours}|${norm.map((s) => s.entity).join(',')}`;
       if (key !== prevKey) { this._series.clear(); this._lastFetch = 0; }
@@ -838,7 +843,7 @@ button.tile { cursor: pointer; }
         const w = this._grid.getBoundingClientRect().width || this._width || 360;
         const gap = 10;
         if (cfg.columns) {
-          const fit = Math.max(1, Math.floor((w + gap) / (120 + gap)));
+          const fit = Math.max(1, Math.floor((w + gap) / (cfg.minTile + gap)));
           cols = Math.min(cfg.columns, fit, n);
         } else {
           const maxCols = clamp(Math.floor((w + gap) / (150 + gap)), 1, n);
