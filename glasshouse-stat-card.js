@@ -4,7 +4,7 @@
  * Part of the Glasshouse card suite. MIT licence.
  */
 (() => {
-  const VERSION = '1.2.0';
+  const VERSION = '1.3.0';
   const TAG = 'glasshouse-stat-card';
 
   const TOKENS = [
@@ -277,6 +277,10 @@ button.tile { cursor: pointer; }
 .single .value .num { font-size: clamp(28px, 13cqi, 40px); letter-spacing: -0.02em; line-height: 1; }
 .single .value .unit { font-size: 14px; }
 .value.text .num { font-size: 22px; letter-spacing: 0; }
+/* name_position: below — state beside the icon, the name (same size) on its own line, up to two lines */
+.top .value.state-top { margin-top: 0; min-width: 0; }
+.top .value.state-top .num { font-size: 20px; }
+.label.name.below { margin-top: 10px; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 1.35; }
 /* since: inline — "Clear  for 9h 51m" on the value line */
 .value .since { margin-left: 6px; font-size: 13px; font-weight: 500; color: var(--gh-text-2); flex: none; }
 .value .since .k { color: var(--gh-text-3); margin-right: 4px; }
@@ -423,7 +427,7 @@ button.tile { cursor: pointer; }
         if (!Number.isFinite(m) || m < 60 || m > 400) throw new Error('glasshouse-stat-card: "min_tile_width" must be a number of pixels, 60-400');
       }
       const defaults = {};
-      ['graph', 'trend', 'extrema', 'accent', 'decimals', 'tap_action', 'hold_action', 'since'].forEach((k) => {
+      ['graph', 'trend', 'extrema', 'accent', 'decimals', 'tap_action', 'hold_action', 'since', 'name_position'].forEach((k) => {
         if (config[k] !== undefined && config.stats) defaults[k] = config[k];
       });
       const norm = stats.map((raw, idx) => {
@@ -439,6 +443,9 @@ button.tile { cursor: pointer; }
         if (!TRENDS.includes(trend)) throw new Error(`glasshouse-stat-card: stats[${idx}].trend must be one of ${TRENDS.join(', ')}`);
         if (s.decimals != null && !(Number.isInteger(+s.decimals) && +s.decimals >= 0 && +s.decimals <= 6)) {
           throw new Error(`glasshouse-stat-card: stats[${idx}].decimals must be 0-6`);
+        }
+        if (s.name_position != null && !['top', 'below'].includes(s.name_position)) {
+          throw new Error(`glasshouse-stat-card: stats[${idx}].name_position must be "top" or "below"`);
         }
         if (s.since != null && !['below', 'inline'].includes(s.since)) {
           throw new Error(`glasshouse-stat-card: stats[${idx}].since must be "below" or "inline"`);
@@ -484,6 +491,7 @@ button.tile { cursor: pointer; }
           secondary: s.secondary,
           secondary_label: s.secondary_label,
           since: s.since || 'below',
+          namePos: s.name_position || 'top',
           bars: s.bars == null ? null : clamp(Math.round(+s.bars) || 24, 4, 120),
           graph_min: Number.isFinite(gmin) ? gmin : null,
           graph_max: Number.isFinite(gmax) ? gmax : null,
@@ -1047,12 +1055,17 @@ button.tile { cursor: pointer; }
     }
 
     _stateHTML(m, single) {
-      const head = `<div class="top">${this._iconHTML(m, m.active && !m.unavail)}<span class="label name">${esc(m.name)}</span></div>`;
+      let head = `<div class="top">${this._iconHTML(m, m.active && !m.unavail)}<span class="label name">${esc(m.name)}</span></div>`;
       const vstyle = m.active && !m.unavail ? ' style="--vc:var(--acc)"' : '';
       const sinceMs = m.st && !m.unavail && !m.stat.secondary ? Date.parse(m.st.last_changed) : NaN;
       const inline = m.stat.since === 'inline' && Number.isFinite(sinceMs);
       const after = inline ? `<span class="since"><span class="k">for</span>${durationLabel(Date.now() - sinceMs)}</span>` : '';
-      const value = `<div class="value text"${vstyle}><span class="num">${esc(m.text)}</span>${after}</div>`;
+      let value = `<div class="value text"${vstyle}><span class="num">${esc(m.text)}</span>${after}</div>`;
+      if (m.stat.namePos === 'below') {
+        // state beside the icon, the full name on its own line under it
+        head = `<div class="top">${this._iconHTML(m, m.active && !m.unavail)}<span class="value text state-top"${vstyle}><span class="num">${esc(m.text)}</span>${after}</span></div>`;
+        value = `<div class="label name below">${esc(m.name)}</div>`;
+      }
       let tl = '';
       if (m.stat.graph !== 'none' && m.segments && m.segments.length) {
         const span = m.end - m.start;

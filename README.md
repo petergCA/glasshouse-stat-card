@@ -63,7 +63,7 @@ stats:
 | `hours` | number | `24` | History window for sparklines, trend and Lo/Hi (max 744). |
 | `columns` | number | auto | Grid columns for multiple stats. Auto picks a balanced layout for the card width; a set value is reduced only when tiles would be narrower than `min_tile_width`. |
 | `min_tile_width` | number | `120` | Narrowest tile (px, 60-400) before a set `columns` is reduced. Lower it to keep short rows, such as four ink levels, on one line on phones. |
-| `graph`, `trend`, `extrema`, `accent`, `decimals`, `since`, `tap_action`, `hold_action` | | | Card-level defaults applied to every stat that doesn't set its own. |
+| `graph`, `trend`, `extrema`, `accent`, `decimals`, `since`, `name_position`, `tap_action`, `hold_action` | | | Card-level defaults applied to every stat that doesn't set its own. |
 
 A single stat can also be written without the list: `entity:` plus any stat option at the top level.
 
@@ -81,6 +81,7 @@ A single stat can also be written without the list: `entity:` plus any stat opti
 | `bars` | number | hours (12–48) | Bar count for `graph: bar`. |
 | `graph_min` / `graph_max` | number | auto | Fix the chart's y-axis range (e.g. `0` / `100` for percentages). |
 | `extrema` | boolean | `true` for a single line chart, else `false` | Min/max markers and the Lo/Hi readout. |
+| `name_position` | `top` / `below` | `top` | For state tiles: `below` puts the state beside the icon and the full name (same size, up to two lines) under it, so long names aren't cut off. |
 | `since` | `below` / `inline` | `below` | For state tiles, where the "for 9h 51m" duration goes: on its own line, or after the state on the value line. |
 | `trend` | `normal` / `inverse` / `neutral` / `none` | `normal` | Trend pill colouring: `normal` = up green, `inverse` = up red, `neutral` = grey, `none` hides it. |
 | `thresholds` | list | none | Colour the value. Each item: `above` and/or `below` (numbers) and `color` (token or CSS colour). Items are sorted by `above`; the highest matching one wins. `color: alert` also pulses the tile. |
