@@ -4,7 +4,7 @@
  * Part of the Glasshouse card suite. MIT licence.
  */
 (() => {
-  const VERSION = '1.3.0';
+  const VERSION = '1.3.1';
   const TAG = 'glasshouse-stat-card';
 
   const TOKENS = [
@@ -24,6 +24,7 @@
     'heat', 'cool', 'heat_cool', 'heating', 'cooling', 'active', 'charging', 'running', 'printing',
     'armed_away', 'armed_home', 'armed_night', 'armed_vacation', 'triggered', 'problem', 'wet',
     'cleaning', 'washing', 'drying', 'jammed', 'pending', 'arming',
+    'connected', 'online', // enum sensors for network devices (e.g. a UniFi gateway's state)
   ];
   const BINARY_LABELS = {
     door: ['Closed', 'Open'], window: ['Closed', 'Open'], opening: ['Closed', 'Open'],
