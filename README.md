@@ -85,6 +85,7 @@ A single stat can also be written without the list: `entity:` plus any stat opti
 | `name_position` | `top` / `below` | `top` | For state tiles: `below` puts the state beside the icon and the full name (same size, up to two lines) under it, so long names aren't cut off. |
 | `since` | `below` / `inline` | `below` | For state tiles, where the "for 9h 51m" duration goes: on its own line, or after the state on the value line. |
 | `trend` | `normal` / `inverse` / `neutral` / `none` | `normal` | Trend pill colouring: `normal` = up green, `inverse` = up red, `neutral` = grey, `none` hides it. |
+| `off_accent` | token or CSS colour | none | For state tiles: also colour the inactive state (icon and text), e.g. `accent: warn, off_accent: ok` makes doors yellow when open and green when closed, like locks. |
 | `thresholds` | list | none | Colour the value. Each item: `above` and/or `below` (numbers) and `color` (token or CSS colour). Items are sorted by `above`; the highest matching one wins. `color: alert` also pulses the tile. |
 | `secondary` | entity id | none | Small line under the value. |
 | `secondary_label` | string | none | Label before the secondary value, e.g. `Today`. |

@@ -4,7 +4,7 @@
  * Part of the Glasshouse card suite. MIT licence.
  */
 (() => {
-  const VERSION = '1.4.0';
+  const VERSION = '1.5.0';
   const TAG = 'glasshouse-stat-card';
 
   const TOKENS = [
@@ -444,7 +444,7 @@ button.tile { cursor: pointer; }
         if (!Number.isFinite(m) || m < 60 || m > 400) throw new Error('glasshouse-stat-card: "min_tile_width" must be a number of pixels, 60-400');
       }
       const defaults = {};
-      ['graph', 'trend', 'extrema', 'accent', 'decimals', 'tap_action', 'hold_action', 'since', 'name_position'].forEach((k) => {
+      ['graph', 'trend', 'extrema', 'accent', 'off_accent', 'decimals', 'tap_action', 'hold_action', 'since', 'name_position'].forEach((k) => {
         if (config[k] !== undefined && config.stats) defaults[k] = config[k];
       });
       const norm = stats.map((raw, idx) => {
@@ -499,6 +499,8 @@ button.tile { cursor: pointer; }
           icon: s.icon,
           accentToken: s.accent,
           accent: resolveColor(s.accent, 'var(--gh-info)'),
+          // off_accent: colour the inactive state too (e.g. closed doors green, like a locked lock)
+          offAccent: s.off_accent == null ? null : resolveColor(s.off_accent, null),
           decimals: s.decimals == null ? null : +s.decimals,
           unit: s.unit,
           graph,
@@ -1072,15 +1074,19 @@ button.tile { cursor: pointer; }
     }
 
     _stateHTML(m, single) {
-      let head = `<div class="top">${this._iconHTML(m, m.active && !m.unavail)}<span class="label name">${esc(m.name)}</span></div>`;
-      const vstyle = m.active && !m.unavail ? ' style="--vc:var(--acc)"' : '';
+      const secure = !!(m.stat.offAccent && m.st && !m.active && !m.unavail);
+      const lit = (m.active && !m.unavail) || secure;
+      const acc = secure ? `--acc:${m.stat.offAccent};` : '';
+      const tstyle = secure ? ` style="${acc}"` : '';
+      let head = `<div class="top"${tstyle}>${this._iconHTML(m, lit)}<span class="label name">${esc(m.name)}</span></div>`;
+      const vstyle = lit ? ` style="${acc}--vc:var(--acc)"` : '';
       const sinceMs = m.st && !m.unavail && !m.stat.secondary ? Date.parse(m.st.last_changed) : NaN;
       const inline = m.stat.since === 'inline' && Number.isFinite(sinceMs);
       const after = inline ? `<span class="since"><span class="k">for</span>${durationLabel(Date.now() - sinceMs)}</span>` : '';
       let value = `<div class="value text"${vstyle}><span class="num">${esc(m.text)}</span>${after}</div>`;
       if (m.stat.namePos === 'below') {
         // state beside the icon, the full name on its own line under it
-        head = `<div class="top">${this._iconHTML(m, m.active && !m.unavail)}<span class="value text state-top"${vstyle}><span class="num">${esc(m.text)}</span>${after}</span></div>`;
+        head = `<div class="top"${tstyle}>${this._iconHTML(m, lit)}<span class="value text state-top"${vstyle}><span class="num">${esc(m.text)}</span>${after}</span></div>`;
         value = `<div class="label name below">${esc(m.name)}</div>`;
       }
       let tl = '';
