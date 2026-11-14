@@ -62,6 +62,7 @@ stats:
 | `title` | string | none | Small label above the tiles, with the window length on the right. |
 | `hours` | number | `24` | History window for sparklines, trend and Lo/Hi (max 744). |
 | `columns` | number | auto | Grid columns for multiple stats. Auto picks a balanced layout for the card width; a set value is reduced only when tiles would be narrower than `min_tile_width`. |
+| `compact` | boolean | `false` | Denser tiles: smaller icon and value, a thin history bar without the "3d ago / now" labels (hover the bar for the window). Good for a wall of status tiles. |
 | `min_tile_width` | number | `120` | Narrowest tile (px, 60-400) before a set `columns` is reduced. Lower it to keep short rows, such as four ink levels, on one line on phones. |
 | `graph`, `trend`, `extrema`, `accent`, `decimals`, `since`, `name_position`, `tap_action`, `hold_action` | | | Card-level defaults applied to every stat that doesn't set its own. |
 

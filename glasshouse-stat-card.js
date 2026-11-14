@@ -4,7 +4,7 @@
  * Part of the Glasshouse card suite. MIT licence.
  */
 (() => {
-  const VERSION = '1.3.1';
+  const VERSION = '1.4.0';
   const TAG = 'glasshouse-stat-card';
 
   const TOKENS = [
@@ -353,6 +353,19 @@ button.tile { cursor: pointer; }
 .graph.tl { height: auto; padding-top: 14px; }
 .single .graph.tl { height: auto; }
 
+/* compact: smaller icon and value, a thin history bar, no window labels (the window is the bar's tooltip) */
+.compact.multi .tile { padding: 9px 11px 10px; }
+.compact .chip { width: 26px; height: 26px; border-radius: 8px; --mdc-icon-size: 16px; }
+.compact .chip ha-icon, .compact .chip ha-state-icon { width: 16px; height: 16px; }
+.compact .top { gap: 8px; }
+.compact .value { margin-top: 6px; }
+.compact .value .num { font-size: 20px; }
+.compact .value.text .num { font-size: 17px; }
+.compact .value .since { font-size: 12px; }
+.compact .graph.tl { padding-top: 8px; }
+.compact .timeline { height: 5px; border-radius: 3px; }
+.compact .graph.tl + .foot { display: none; }
+
 .foot {
   display: flex; justify-content: space-between; gap: 8px;
   margin-top: 7px;
@@ -422,6 +435,9 @@ button.tile { cursor: pointer; }
       if (config.columns != null) {
         const c = Number(config.columns);
         if (!Number.isInteger(c) || c < 1 || c > 8) throw new Error('glasshouse-stat-card: "columns" must be an integer 1-8');
+      }
+      if (config.compact != null && typeof config.compact !== 'boolean') {
+        throw new Error('glasshouse-stat-card: "compact" must be true or false');
       }
       if (config.min_tile_width != null) {
         const m = Number(config.min_tile_width);
@@ -503,7 +519,7 @@ button.tile { cursor: pointer; }
       const prevKey = this._config ? `${this._config.hours}|${this._config.stats.map((s) => s.entity).join(',')}` : '';
       this._config = {
         title: config.title, hours, columns: config.columns == null ? null : +config.columns,
-        minTile: config.min_tile_width == null ? 120 : +config.min_tile_width, stats: norm,
+        minTile: config.min_tile_width == null ? 120 : +config.min_tile_width, stats: norm, compact: config.compact === true,
       };
       const key = `${hours}|${norm.map((s) => s.entity).join(',')}`;
       if (key !== prevKey) { this._series.clear(); this._lastFetch = 0; }
@@ -811,7 +827,7 @@ button.tile { cursor: pointer; }
       const single = cfg.stats.length === 1;
       const root = this.shadowRoot;
       root.innerHTML = `<style>${CSS}</style>
-        <ha-card class="${single ? 'single' : 'multi'}">
+        <ha-card class="${single ? 'single' : 'multi'}${cfg.compact ? ' compact' : ''}">
           ${cfg.title ? `<div class="head"><span class="label">${esc(cfg.title)}</span><span class="label win">${windowLabel(cfg.hours)}</span></div>` : ''}
           <div class="grid"></div>
         </ha-card>`;
@@ -1092,7 +1108,7 @@ button.tile { cursor: pointer; }
         });
         const cells = parts.filter((p) => p.w > 0)
           .map((p) => `<i class="${p.c}" style="width:${((p.w / span) * 100).toFixed(3)}%"></i>`).join('');
-        tl = `<div class="graph tl"><div class="timeline">${cells}</div></div>
+        tl = `<div class="graph tl" title="Last ${windowLabel(this._config.hours)}"><div class="timeline">${cells}</div></div>
           <div class="foot"><span>${windowLabel(this._config.hours)} ago</span><span>now</span></div>`;
       }
       return head + value + (inline ? '' : this._secondaryHTML(m)) + tl;
