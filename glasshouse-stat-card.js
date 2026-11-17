@@ -4,7 +4,7 @@
  * Part of the Glasshouse card suite. MIT licence.
  */
 (() => {
-  const VERSION = '1.5.0';
+  const VERSION = '1.5.1';
   const TAG = 'glasshouse-stat-card';
 
   const TOKENS = [
@@ -890,6 +890,14 @@ button.tile { cursor: pointer; }
     }
 
     _update() {
+      // WebKit (iPhone) can snap the page up while a card swaps its content at the bottom of a page; hold the scroll where it was
+      const y = typeof window !== 'undefined' ? window.scrollY : 0;
+      const r = this._updateBody();
+      if (typeof window !== 'undefined' && y && window.scrollY !== y && window.scrollY < y) window.scrollTo(window.scrollX, y);
+      return r;
+    }
+
+    _updateBody() {
       if (!this._built || !this._hass) return;
       const cfg = this._config;
       const single = cfg.stats.length === 1;
